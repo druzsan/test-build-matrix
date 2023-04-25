@@ -10,7 +10,7 @@ jobs:
       matrix: ${{ steps.build.outputs.matrix }}
     steps:
       - id: build
-        uses: druzsan/build-matrix@v1.0.0
+        uses: druzsan/build-matrix@main
         with:
           matrix: |
             os: ubuntu-latest windows-latest macos-latest,
