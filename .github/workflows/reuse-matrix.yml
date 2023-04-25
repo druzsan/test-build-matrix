@@ -1,0 +1,60 @@
+name: Reuse Matrix
+
+on: push
+
+jobs:
+  # Build matrix
+  build-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.build.outputs.matrix }}
+    steps:
+      - id: build
+        uses: druzsan/build-matrix@v1
+        with:
+          matrix: |
+            os: ubuntu-latest windows-latest macos-latest,
+            python-version: 3.8 3.9 3.10
+  # Setup python environment and cache installed packages
+  setup-python:
+    needs: build-matrix
+    strategy:
+      matrix: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '${{ matrix.python-version }}'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+  # Check code quality
+  check-code:
+    needs: [build-matrix, setup-python]
+    strategy:
+      matrix: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '${{ matrix.python-version }}'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: black --check .
+      - run: mypy .
+      - run: pylint src
+  # Test code
+  unit-test:
+    needs: [build-matrix, setup-python]
+    strategy:
+      matrix: ${{ fromJson(needs.build-matrix.outputs.matrix) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '${{ matrix.python-version }}'
+          cache: pip
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest
