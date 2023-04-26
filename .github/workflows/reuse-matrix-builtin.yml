@@ -3,7 +3,7 @@ name: 2.1. Reuse matrix (built-in)
 on: push
 
 jobs:
-  # No matrix build
+  # No matrix setup
   # Setup python environment and cache installed packages
   setup-python:
     strategy:

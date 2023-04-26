@@ -1,9 +1,9 @@
-name: 3.1. Build dynamic matrix (built-in)
+name: 3.1. Setup dynamic matrix (built-in)
 
 on: push
 
 jobs:
-  # No matrix build
+  # No matrix setup
   # Test code on a dev branch
   unit-test-dev:
     if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v')
