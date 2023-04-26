@@ -1,0 +1,52 @@
+name: 3.1. Build dynamic matrix (built-in)
+
+on: push
+
+jobs:
+  # No matrix build
+  # Test code on a dev branch
+  unit-test-dev:
+    if: github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.8'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest
+  # Test code on the main branch
+  unit-test-main:
+    if: github.ref == 'refs/heads/main'
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ['3.8', '3.9', '3.10']
+        include:
+          - os: windows-latest
+            python-version: '3.8'
+          - os: macos-latest
+            python-version: '3.8'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '${{ matrix.python-version }}'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest
+  # Test code on a tag
+  unit-test-tag:
+    if: startsWith(github.ref, 'refs/tags/v')
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.8', '3.9', '3.10']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '${{ matrix.python-version }}'
+      - run: python -m pip install -r requirements.txt
+      - run: python -m pytest
