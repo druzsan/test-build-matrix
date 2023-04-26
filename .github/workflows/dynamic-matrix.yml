@@ -1,4 +1,4 @@
-name: Build dynamic matrix
+name: 3.2. Build dynamic matrix
 
 on: push
 
